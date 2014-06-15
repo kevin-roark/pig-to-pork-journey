@@ -6,6 +6,7 @@ var GAME_HEIGHT = 600;
 
 var $body = $('body');
 var game, pig, cannon;
+var donuts = [];
 
 
 intro(function() {
@@ -15,6 +16,7 @@ intro(function() {
 function preload() {
   game.load.image('flypig', 'assets/flypig.png');
   game.load.image('cannon', 'assets/cannon.png');
+  game.load.image('donut', 'assets/chocolate_donut.png');
 }
 
 function createGame() {
@@ -23,6 +25,8 @@ function createGame() {
 
   cannon = game.add.sprite(0, GAME_HEIGHT - 200, 'cannon');
   game.physics.enable(cannon, Phaser.Physics.ARCADE);
+
+  createDonut();
 
   launchPig();
 }
@@ -37,4 +41,10 @@ function launchPig() {
       clearInterval(launchInterval);
     }
   }, 100);
+}
+
+function createDonut() {
+  var donut = game.add.sprite(400, 100, 'donut');
+  donuts.push(donut);
+  game.physics.enable(donut, Phaser.Physics.ARCADE);
 }
