@@ -125,7 +125,7 @@ var intro = require('./intro');
 var GAME_WIDTH = 800;
 var GAME_HEIGHT = 600;
 
-var SPEED_DIFF = 50;
+var SPEED_DIFF = 85;
 
 var $body = $('body');
 var game, pig, cannon;
@@ -152,6 +152,8 @@ function preload() {
 function createGame() {
   game.physics.startSystem(Phaser.Physics.ARCADE);
 
+  game.world.setBounds(0, 0, 2500, 2500);
+
   pig = game.add.sprite(50, GAME_HEIGHT - 200, 'flypig');
   pig.name = 'flypig';
   game.physics.enable(pig, Phaser.Physics.ARCADE);
@@ -162,6 +164,8 @@ function createGame() {
   cannon = game.add.sprite(0, GAME_HEIGHT - 200, 'cannon');
   cannon.name = 'cannon';
   game.physics.enable(cannon, Phaser.Physics.ARCADE);
+
+  game.camera.follow(pig);
 
   keys = game.input.keyboard.createCursorKeys();
 
@@ -190,14 +194,19 @@ function setPigMotion() {
 
   if (keys.left.isDown) {
     pig.body.velocity.x -= SPEED_DIFF;
-  } else if (keys.right.isDown) {
+  }
+  
+  if (keys.right.isDown) {
     pig.body.velocity.x += SPEED_DIFF;
-  } else if (keys.up.isDown) {
+  }
+  
+  if (keys.up.isDown) {
     pig.body.velocity.y -= SPEED_DIFF;
-  } else if (keys.down.isDown) {
+  }
+  
+  if (keys.down.isDown) {
     pig.body.velocity.y += SPEED_DIFF;
   }
-
 }
 
 function render() {
