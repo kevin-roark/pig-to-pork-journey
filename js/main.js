@@ -5,18 +5,21 @@ var GAME_WIDTH = 1400;
 var GAME_HEIGHT = 700;
 var WORLD_WIDTH = 100000;
 
-var HOR_SPEED_UP = 120;
-var HOR_SLOW_DOWN = 100;
+var HOR_SPEED_UP = 130;
+var HOR_SLOW_DOWN = 110;
 var VERT_SPEED_DIFF = 140;
-var MIN_SPEED = 180;
+var MIN_SPEED = 215;
 
 var $body = $('body');
 var game, pig, cannon;
 var donuts = [];
 var keys;
 var controllable = false;
+var active = false;
 
 var lastDonutCreationX;
+
+var lifeLossRate = 5;
 
 
 //intro(function() {
@@ -35,7 +38,24 @@ function preload() {
   game.load.image('donut', 'assets/chocolate_donut.png');
 }
 
+function addControls() {
+  $('canvas').css('opacity', '0.2');
+  $('body').css('background-color', 'white');
+  
+  $('.play-button').show();
+  $('.title').show();
+
+  $('.play-button').click(function() {
+    $(this).fadeOut(900, function() {
+      startGame();
+    });
+    $('.title').fadeOut(900);
+  });
+}
+
 function createGame() {
+  addControls();
+
   game.scale.pageAlignHorizontally = true;
   game.scale.pageAlignVertically = true;
   game.scale.refresh();
@@ -46,14 +66,14 @@ function createGame() {
 
   game.world.setBounds(0, 0, WORLD_WIDTH, GAME_HEIGHT);
 
-  pig = game.add.sprite(200, GAME_HEIGHT - 200, 'flypig');
+  pig = game.add.sprite(200, GAME_HEIGHT - 150, 'flypig');
   pig.name = 'flypig';
   game.physics.enable(pig, Phaser.Physics.ARCADE);
   pig.body.collideWorldBounds = true;
   pig.body.immovable = true;
   pig.anchor.setTo(0.5, 0.5);
 
-  cannon = game.add.sprite(0, GAME_HEIGHT - 200, 'cannon');
+  cannon = game.add.sprite(0, GAME_HEIGHT - 160, 'cannon');
   cannon.name = 'cannon';
   game.physics.enable(cannon, Phaser.Physics.ARCADE);
 
@@ -62,18 +82,26 @@ function createGame() {
   keys = game.input.keyboard.createCursorKeys();
 
   createDonut();
+}
 
+function startGame() {
+  $('body').css('background-color', 'black');
+  $('canvas').css('opacity', '1.0');
+
+  active = true;
   launchPig();
 }
 
 function update() {
+  if (!active) return; 
+
   for (var i = 0; i < donuts.length; i++) {
     var donut = donuts[i];
     var intersecting = game.physics.arcade.intersects(pig, donut);
     var distance = game.physics.arcade.distanceBetween(pig, donut);
   }
 
-  if (getWorldX() - lastDonutCreationX > 450) {
+  if (getWorldX() - lastDonutCreationX > 400) {
     createDonut();
   }
 
