@@ -131,6 +131,16 @@ var HOR_SLOW_DOWN = 110;
 var VERT_SPEED_DIFF = 140;
 var MIN_SPEED = 215;
 
+var TOUCHING_DIST = 100;
+var PASSED_DIST = 400;
+var OFFSCREEN_DIST = GAME_WIDTH;
+
+var STARTING_LIFE = 5000;
+var DEFAULT_LIFE_LOSS = 3;
+var DONUT_LIFE_GAIN = 100;
+
+var DONUT_CREATION_RATE = 1500;
+
 var $body = $('body');
 var game, pig, cannon;
 var donuts = [];
@@ -138,10 +148,15 @@ var keys;
 var controllable = false;
 var active = false;
 
-var lastDonutCreationX;
+var donutGroup, pigGroup, textGroup;
 
-var lifeLossRate = 5;
+var lifeText;
 
+var currentLife = STARTING_LIFE;
+var lifeLossRate = DEFAULT_LIFE_LOSS;
+
+var Sprite = Phaser.Sprite;
+var Text = Phaser.Text;
 
 //intro(function() {
   game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, 'pork-journey',
@@ -167,6 +182,7 @@ function addControls() {
   $('.title').show();
 
   $('.play-button').click(function() {
+    $(this).off('click');
     $(this).fadeOut(900, function() {
       startGame();
     });
@@ -187,14 +203,27 @@ function createGame() {
 
   game.world.setBounds(0, 0, WORLD_WIDTH, GAME_HEIGHT);
 
-  pig = game.add.sprite(200, GAME_HEIGHT - 150, 'flypig');
+  donutGroup = game.add.group();
+  pigGroup = game.add.group();
+  textGroup = game.add.group();
+
+  pig = pigGroup.add(new Sprite(game, 200, GAME_HEIGHT - 150, 'flypig'));
   pig.name = 'flypig';
   game.physics.enable(pig, Phaser.Physics.ARCADE);
   pig.body.collideWorldBounds = true;
   pig.body.immovable = true;
   pig.anchor.setTo(0.5, 0.5);
 
-  cannon = game.add.sprite(0, GAME_HEIGHT - 160, 'cannon');
+  lifeText = textGroup.add(new Text(game, GAME_WIDTH - 200, 36, getLifeText(), {
+    font: "56px Courier New",
+    fill: "rgb(255, 0, 0)",
+    align: "center"
+  }));
+
+  lifeText.anchor.setTo(0.5, 0.5);
+  lifeText.fixedToCamera = true;
+
+  cannon = donutGroup.add(new Sprite(game, 0, GAME_HEIGHT - 160, 'cannon'));
   cannon.name = 'cannon';
   game.physics.enable(cannon, Phaser.Physics.ARCADE);
 
@@ -211,29 +240,87 @@ function startGame() {
 
   active = true;
   launchPig(function() {
+    startDonutTimer();
     controllable = true;
   });
 }
+
+function endGame() {
+  // gotta get the animation going with eating pork
+
+  active = false;
+  controllable = false;
+
+  $('canvas').css('opacity', '0.2');
+  $('.title').fadeIn(600);
+  $('.replay-button').fadeIn(600);
+  $('body').css('background-color', 'white');
+
+  $('.replay-button').click(function() {
+    $(this).off('click');
+    $(this).fadeOut(300, function() {
+      startGame();
+    });
+    $('.title').fadeOut(300);
+  });
+
+  pig.world.x = 200;
+  pig.world.y = GAME_HEIGHT - 150;
+ 
+  while (donuts.length > 0) {
+    var donut = donuts.shift();
+    donut.destroy();
+  }
+
+  currentLife = STARTING_LIFE;
+}
+
+var logged = false;
 
 function update() {
   if (!active) return;
 
   for (var i = 0; i < donuts.length; i++) {
     var donut = donuts[i];
-    var intersecting = game.physics.arcade.intersects(pig, donut);
     var distance = game.physics.arcade.distanceBetween(pig, donut);
+
+    if (!donut.passed && distance < TOUCHING_DIST) {
+      hitDonut(donut);
+    } else if (!donut.passed && pig.world.x - donut.world.x > PASSED_DIST) {
+      passedDonut(donut);
+    }
   }
 
-  if (getWorldX() - lastDonutCreationX > 400) {
-    createDonut();
+  var firstDonut = donuts[0];
+  if (firstDonut.passed && pig.world.x - firstDonut.world.x > OFFSCREEN_DIST) {
+    donuts.shift();
+    firstDonut.destroy();
   }
 
   rotateDonuts();
 
   if (!controllable) return;
 
+  lifeLossRate = DEFAULT_LIFE_LOSS;
+
   setPigMotion();
- }
+
+  currentLife -= lifeLossRate;
+  lifeText.setText(getLifeText());
+
+  if (currentLife <= 0) {
+    endGame();
+  }
+}
+
+function hitDonut(donut) {
+  donut.passed = true;
+  currentLife += DONUT_LIFE_GAIN;
+}
+
+function passedDonut(donut) {
+  donut.passed = true;
+}
 
 function setPigMotion() {
   pig.body.velocity.x = MIN_SPEED;
@@ -241,10 +328,12 @@ function setPigMotion() {
 
   if (keys.left.isDown) {
     pig.body.velocity.x -= HOR_SLOW_DOWN;
+    lifeLossRate *= 1.25;
   }
 
   if (keys.right.isDown) {
     pig.body.velocity.x += HOR_SPEED_UP;
+    lifeLossRate *= 0.75;
   }
 
   if (keys.up.isDown) {
@@ -278,9 +367,17 @@ function launchPig(callback) {
   }, 100);
 }
 
+function startDonutTimer() {
+  if (!active) return;
+
+  setTimeout(function() {
+    createDonut();
+    startDonutTimer();
+  }, DONUT_CREATION_RATE);
+}
+
 function createDonut() {
   var worldX = getWorldX();
-  lastDonutCreationX = worldX;
 
   if (worldX < 100) {
     var x = 800;
@@ -290,17 +387,12 @@ function createDonut() {
     var y = game.rnd.integerInRange(80, 620);
   }
 
-  var donut = game.add.sprite(x, y, 'donut');
+  var donut = donutGroup.add(new Sprite(game, x, y, 'donut'));
   donuts.push(donut);
   donut.name = 'donut' + donuts.length;
   game.physics.enable(donut, Phaser.Physics.ARCADE);
   donut.anchor.setTo(0.5, 0.5);
-
-  if (donuts.length > 10) {
-    donuts.shift();
-  }
-
-  pig.bringToTop();
+  donut.passed = false;
 }
 
 function rotateDonuts() {
@@ -312,6 +404,10 @@ function rotateDonuts() {
 
 function getWorldX() {
   return -game.world.position.x;
+}
+
+function getLifeText() {
+  return 'fat: ' + Math.round(currentLife);
 }
 
 },{"./intro":1}]},{},[2])
