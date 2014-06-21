@@ -162,7 +162,7 @@ function preload() {
 function addControls() {
   $('canvas').css('opacity', '0.2');
   $('body').css('background-color', 'white');
-  
+
   $('.play-button').show();
   $('.title').show();
 
@@ -182,7 +182,7 @@ function createGame() {
   game.scale.refresh();
 
   game.add.tileSprite(0, 0, WORLD_WIDTH, GAME_HEIGHT, 'background');
-  
+
   game.physics.startSystem(Phaser.Physics.ARCADE);
 
   game.world.setBounds(0, 0, WORLD_WIDTH, GAME_HEIGHT);
@@ -210,11 +210,13 @@ function startGame() {
   $('canvas').css('opacity', '1.0');
 
   active = true;
-  launchPig();
+  launchPig(function() {
+    controllable = true;
+  });
 }
 
 function update() {
-  if (!active) return; 
+  if (!active) return;
 
   for (var i = 0; i < donuts.length; i++) {
     var donut = donuts[i];
@@ -240,15 +242,15 @@ function setPigMotion() {
   if (keys.left.isDown) {
     pig.body.velocity.x -= HOR_SLOW_DOWN;
   }
-  
+
   if (keys.right.isDown) {
     pig.body.velocity.x += HOR_SPEED_UP;
   }
-  
+
   if (keys.up.isDown) {
     pig.body.velocity.y -= VERT_SPEED_DIFF;
   }
-  
+
   if (keys.down.isDown) {
     pig.body.velocity.y += VERT_SPEED_DIFF;
   }
@@ -258,16 +260,20 @@ function render() {
   // called every frame i guess after update
 }
 
-function launchPig() {
-  pig.body.velocity.x = 80;
-  pig.body.velocity.y = -56;
+function launchPig(callback) {
+  pig.body.velocity.x = 200;
+  pig.body.velocity.y = -320;
 
   var launchInterval = setInterval(function() {
-    pig.body.velocity.y += 1;
-    if (pig.body.velocity.y >= 0) {
+    pig.body.velocity.y *= 0.9;
+    pig.body.velocity.x *= 0.94;
+
+    if (pig.body.velocity.y >= -30) {
       clearInterval(launchInterval);
       pig.body.velocity.x = 0;
-      controllable = true;
+      pig.body.velocity.y = 0;
+
+      callback();
     }
   }, 100);
 }
@@ -275,7 +281,7 @@ function launchPig() {
 function createDonut() {
   var worldX = getWorldX();
   lastDonutCreationX = worldX;
-  
+
   if (worldX < 100) {
     var x = 800;
     var y = 300;
@@ -288,13 +294,12 @@ function createDonut() {
   donuts.push(donut);
   donut.name = 'donut' + donuts.length;
   game.physics.enable(donut, Phaser.Physics.ARCADE);
-  //donut.body.immovable = true;
   donut.anchor.setTo(0.5, 0.5);
 
   if (donuts.length > 10) {
     donuts.shift();
   }
-  
+
   pig.bringToTop();
 }
 
@@ -308,7 +313,5 @@ function rotateDonuts() {
 function getWorldX() {
   return -game.world.position.x;
 }
-
-
 
 },{"./intro":1}]},{},[2])
