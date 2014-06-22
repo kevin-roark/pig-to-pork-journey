@@ -12,7 +12,6 @@ var MIN_SPEED = 215;
 
 var TOUCHING_DIST = 100;
 var PASSED_DIST = 400;
-var OFFSCREEN_DIST = GAME_WIDTH;
 
 var STARTING_LIFE = 5000;
 var DEFAULT_LIFE_LOSS = 3;
@@ -50,7 +49,11 @@ function preload() {
   game.load.image('background','assets/galaxy.jpg');
   game.load.image('flypig', 'assets/flypig.png');
   game.load.image('cannon', 'assets/cannon.png');
+
   game.load.image('donut', 'assets/chocolate_donut.png');
+  game.load.image('glow-donut', 'assets/chocolate_donut_glow.png');
+
+  game.load.image('blood', 'assets/blood.jpg');
 }
 
 function addControls() {
@@ -171,7 +174,7 @@ function update() {
   }
 
   var firstDonut = donuts[0];
-  if (firstDonut.passed && pig.world.x - firstDonut.world.x > OFFSCREEN_DIST) {
+  if (firstDonut.passed && !firstDonut.inCamera) {
     donuts.shift();
     firstDonut.destroy();
   }
@@ -197,6 +200,9 @@ function hitDonut(donut) {
   currentLife += DONUT_LIFE_GAIN;
   growDonut();
 
+  var glowInterval;
+  var glowing = false;
+
   function growDonut() {
     var scaleRate = 1.05;
 
@@ -208,12 +214,43 @@ function hitDonut(donut) {
     if (donut.scale.x < 3) {
       setTimeout(growDonut, 20);
     } else {
-      explodeDonut();
+
+      setInterval(function() {
+        if (glowing) {
+          donut.loadTexture('donut');
+        } else {
+          donut.loadTexture('glow-donut');
+        }
+        glowing = !glowing;
+      }, 100);
+
+      setTimeout(explodeDonut, 200);
     }
   }
 
   function explodeDonut() {
-    // do an emitter here with blood
+    var numParticles = 40;
+    var explosionEmitter = game.add.emitter(donut.world.x, donut.world.y, numParticles);
+    explosionEmitter.width = 120;
+    explosionEmitter.height = 120;
+    explosionEmitter.setXSpeed(-700, 700);
+    explosionEmitter.setYSpeed(-700, 700);
+
+    var lifespan = 2000;
+    explosionEmitter.makeParticles('blood'); // assume preloaded blood texture
+    explosionEmitter.start(false, lifespan, 1);
+
+    var fadeInterval = setInterval(function() {
+      donut.alpha -= 0.05;
+      if (donut.alpha <= 0) {
+        clearInterval(fadeInterval);
+        clearInterval(glowInterval);
+      }
+    }, 50);
+
+    setTimeout(function() {
+      explosionEmitter.destroy();
+    }, numParticles + lifespan);
   }
 }
 
@@ -289,6 +326,7 @@ function createDonut() {
   var donut = donutGroup.add(new Sprite(game, x, y, 'donut'));
   donuts.push(donut);
   donut.name = 'donut' + donuts.length;
+  donut.smoothed = false;
   game.physics.enable(donut, Phaser.Physics.ARCADE);
   donut.anchor.setTo(0.5, 0.5);
   donut.passed = false;
