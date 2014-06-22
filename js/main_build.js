@@ -266,7 +266,7 @@ function endGame() {
 
   pig.world.x = 200;
   pig.world.y = GAME_HEIGHT - 150;
- 
+
   while (donuts.length > 0) {
     var donut = donuts.shift();
     donut.destroy();
@@ -316,6 +316,26 @@ function update() {
 function hitDonut(donut) {
   donut.passed = true;
   currentLife += DONUT_LIFE_GAIN;
+  growDonut();
+
+  function growDonut() {
+    var scaleRate = 1.05;
+
+    if (!donut) return;
+
+    donut.scale.x *= scaleRate;
+    donut.scale.y *= scaleRate;
+
+    if (donut.scale.x < 3) {
+      setTimeout(growDonut, 20);
+    } else {
+      explodeDonut();
+    }
+  }
+
+  function explodeDonut() {
+    // do an emitter here with blood
+  }
 }
 
 function passedDonut(donut) {
