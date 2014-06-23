@@ -266,28 +266,46 @@ function endGame() {
   active = false;
   controllable = false;
 
-  $('canvas').css('opacity', '0.2');
-  $('.title').fadeIn(600);
-  $('.replay-button').fadeIn(600);
-  $('body').css('background-color', 'white');
-
-  $('.replay-button').click(function() {
-    $(this).off('click');
-    $(this).fadeOut(300, function() {
-      startGame();
-    });
-    $('.title').fadeOut(300);
-  });
-
-  pig.world.x = 200;
-  pig.world.y = GAME_HEIGHT - 150;
+  pig.world.y = GAME_HEIGHT / 2;
+  pig.body.velocity.y = 0;
+  pig.body.velocity.x = MIN_SPEED;
+  currentLife = 0;
 
   while (donuts.length > 0) {
     var donut = donuts.shift();
     donut.destroy();
   }
 
-  currentLife = STARTING_LIFE;
+  setTimeout(function() {
+    bringTheMouth();
+  }, 5000);
+
+  function bringTheMouth() {
+    game.camera.target = null;
+
+    setTimeout(resetThings, 5000);
+  }
+
+  function resetThings() {
+    $('canvas').css('opacity', '0.2');
+    $('.title').fadeIn(600);
+    $('.replay-button').fadeIn(600);
+    $('body').css('background-color', 'white');
+
+    $('.replay-button').click(function() {
+      $(this).off('click');
+      $(this).fadeOut(300, function() {
+        startGame();
+      });
+      $('.title').fadeOut(300);
+    });
+
+    pig.world.x = 200;
+    pig.world.y = GAME_HEIGHT - 150;
+
+    currentLife = STARTING_LIFE;
+  }
+
 }
 
 var logged = false;
@@ -350,7 +368,7 @@ function hitDonut(donut) {
     if (donut.scale.x < 3) {
       setTimeout(growDonut, 20);
     } else {
-      setInterval(function() {
+      glowInterval = setInterval(function() {
         if (glowing) {
           donut.loadTexture('donut');
         } else {
