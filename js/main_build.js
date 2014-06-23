@@ -143,6 +143,8 @@ var DONUT_CREATION_RATE = 1500;
 var $body = $('body');
 var game, pig, cannon;
 var donuts = [];
+var bloodEmitter;
+
 var keys;
 var controllable = false;
 var active = false;
@@ -175,6 +177,10 @@ function preload() {
   game.load.image('glow-donut', 'assets/chocolate_donut_glow.png');
 
   game.load.image('blood', 'assets/blood.jpg');
+
+  game.load.image('gold', 'assets/gold.jpg');
+  game.load.image('platinum', 'assets/platinum.jpg');
+  game.load.image('rainbow', 'assets/rainbow.jpg');
 }
 
 function addControls() {
@@ -230,6 +236,11 @@ function createGame() {
   cannon.name = 'cannon';
   game.physics.enable(cannon, Phaser.Physics.ARCADE);
 
+  bloodEmitter = game.add.emitter(pig.world.x - 50, pig.world.y, 0);
+  bloodEmitter.setXSpeed(-190, 20);
+  bloodEmitter.setYSpeed(20, 100);
+  bloodEmitter.makeParticles('blood');
+
   game.camera.follow(pig, Phaser.Camera.FOLLOW_PLATFORMER);
 
   keys = game.input.keyboard.createCursorKeys();
@@ -245,6 +256,7 @@ function startGame() {
   launchPig(function() {
     startDonutTimer();
     controllable = true;
+    bloodEmitter.start(false, 500, 30);
   });
 }
 
@@ -302,6 +314,9 @@ function update() {
 
   rotateDonuts();
 
+  bloodEmitter.emitX = pig.world.x - 50;
+  bloodEmitter.emitY = pig.world.y;
+
   if (!controllable) return;
 
   lifeLossRate = DEFAULT_LIFE_LOSS;
@@ -335,7 +350,6 @@ function hitDonut(donut) {
     if (donut.scale.x < 3) {
       setTimeout(growDonut, 20);
     } else {
-
       setInterval(function() {
         if (glowing) {
           donut.loadTexture('donut');
@@ -358,7 +372,7 @@ function hitDonut(donut) {
     explosionEmitter.setYSpeed(-700, 700);
 
     var lifespan = 2000;
-    explosionEmitter.makeParticles('blood'); // assume preloaded blood texture
+    explosionEmitter.makeParticles(['gold', 'platinum', 'rainbow']);
     explosionEmitter.start(false, lifespan, 1);
 
     var fadeInterval = setInterval(function() {
