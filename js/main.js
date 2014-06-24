@@ -3,7 +3,7 @@ var intro = require('./intro');
 
 var GAME_WIDTH = 1400;
 var GAME_HEIGHT = 700;
-var WORLD_WIDTH = 100000;
+var WORLD_WIDTH = 200000;
 
 var HOR_SPEED_UP = 130;
 var HOR_SLOW_DOWN = 110;
@@ -20,7 +20,7 @@ var DONUT_LIFE_GAIN = 100;
 var DONUT_CREATION_RATE = 1500;
 
 var $body = $('body');
-var game, pig, cannon;
+var game, pig, cannon, mouth;
 var donuts = [];
 var bloodEmitter;
 
@@ -149,7 +149,7 @@ function endGame() {
   active = false;
   controllable = false;
 
-  pig.world.y = GAME_HEIGHT / 2;
+  pig.y = GAME_HEIGHT / 2;
   pig.body.velocity.y = 0;
   pig.body.velocity.x = MIN_SPEED;
   currentLife = 0;
@@ -164,9 +164,49 @@ function endGame() {
   }, 5000);
 
   function bringTheMouth() {
-    game.camera.target = null;
+    mouth = donutGroup.add(new Sprite(game, pig.world.x + 550, GAME_HEIGHT / 2, 'closed-mouth'));
+    mouth.anchor.setTo(0.5, 0.5);
+    mouth.smoothed = false;
+    game.physics.enable(mouth, Phaser.Physics.ARCADE);
 
-    setTimeout(resetThings, 5000);
+    var changeTime = 400;
+    var nextTexture = 'open-mouth';
+    var textures = ['closed-mouth', 'open-mouth', 'scary-mouth'];
+    var eaten = false;
+    setTimeout(changeTexture, changeTime);
+
+    function changeTexture() {
+      if (eaten) return;
+
+      mouth.loadTexture(nextTexture);
+
+      changeTime *= 0.97;
+      if (changeTime < 100) {
+        nextTexture = textures[Math.floor(Math.random() * textures.length)];
+      } else {
+        if (nextTexture == 'open-mouth') {
+          nextTexture = 'closed-mouth';
+        } else {
+          nextTexture = 'open-mouth';
+        }
+      }
+
+      setTimeout(changeTexture, changeTime);
+    }
+
+    mouth.body.velocity.x = pig.body.velocity.x;
+
+    setTimeout(function() {
+      game.camera.target = null;
+      pig.body.velocity.x = 40;
+      mouth.body.velocity.x = 0;
+      setTimeout(function() {
+        eaten = true;
+        mouth.destroy();
+        mouth = null;
+        resetThings();
+      }, 10500);
+    }, 4000);
   }
 
   function resetThings() {
@@ -183,8 +223,10 @@ function endGame() {
       $('.title').fadeOut(300);
     });
 
-    pig.world.x = 200;
-    pig.world.y = GAME_HEIGHT - 150;
+    pig.x = 200;
+    pig.y = GAME_HEIGHT - 150;
+    pig.body.velocity.x = 0;
+    game.camera.follow(pig);
 
     currentLife = STARTING_LIFE;
   }
