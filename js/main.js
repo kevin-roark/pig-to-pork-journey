@@ -60,6 +60,10 @@ function preload() {
   game.load.image('gold', 'assets/gold.jpg');
   game.load.image('platinum', 'assets/platinum.jpg');
   game.load.image('rainbow', 'assets/rainbow.jpg');
+
+  game.load.image('open-mouth', 'assets/open_mouth.png');
+  game.load.image('closed-mouth', 'assets/closed_mouth.png');
+  game.load.image('scary-mouth', 'assets/scary_mouth.png');
 }
 
 function addControls() {
