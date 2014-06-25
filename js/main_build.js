@@ -422,6 +422,15 @@ function hitDonut(donut) {
   currentLife += DONUT_LIFE_GAIN;
   growDonut();
 
+  lifeText.fontSize = 66;
+  lifeText.font = 'Courier New';
+  lifeText.fill = 'rgb(230, 230, 45)';
+  setTimeout(function() {
+    lifeText.fontSize = 56;
+    lifeText.font = 'Courier New';
+    lifeText.fill = 'rgb(255, 0, 0)';
+  }, 250);
+
   var glowInterval;
   var glowing = false;
 
