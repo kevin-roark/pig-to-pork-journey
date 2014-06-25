@@ -332,7 +332,7 @@ function endGame() {
         if (++dpi < deadPigs.length) {
           warpPig();
         }
-      }, 1200);
+      }, 1450);
     }
 
     setTimeout(function() {
