@@ -185,6 +185,13 @@ function preload() {
   game.load.image('open-mouth', 'assets/open_mouth.png');
   game.load.image('closed-mouth', 'assets/closed_mouth.png');
   game.load.image('scary-mouth', 'assets/scary_mouth.png');
+
+  game.load.image('dp1', 'assets/deadpig-1.png');
+  game.load.image('dp2', 'assets/deadpig-2.png');
+  game.load.image('dp3', 'assets/deadpig-3.png');
+  game.load.image('dp4', 'assets/deadpig-4.png');
+  game.load.image('dp5', 'assets/deadpig-5.png');
+  game.load.image('dp6', 'assets/deadpig-6.png');
 }
 
 function addControls() {
@@ -317,10 +324,24 @@ function endGame() {
 
     mouth.body.velocity.x = pig.body.velocity.x;
 
+    var deadPigs = ['dp1', 'dp2', 'dp3', 'dp4', 'dp5', 'dp6'];
+    var dpi = 0;
+    function warpPig() {
+      setTimeout(function() {
+        pig.loadTexture(deadPigs[dpi]);
+        if (++dpi < deadPigs.length) {
+          warpPig();
+        }
+      }, 1200);
+    }
+
     setTimeout(function() {
       game.camera.target = null;
       pig.body.velocity.x = 40;
       mouth.body.velocity.x = 0;
+
+      warpPig();
+
       setTimeout(function() {
         eaten = true;
         mouth.destroy();
