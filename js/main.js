@@ -248,6 +248,7 @@ function endGame() {
     pig.y = GAME_HEIGHT - 150;
     pig.body.velocity.x = 0;
     game.camera.follow(pig);
+    pig.loadTexture('flypig');
 
     currentLife = STARTING_LIFE;
   }
@@ -414,7 +415,7 @@ function startDonutTimer() {
 function createDonut() {
   var worldX = getWorldX();
 
-  if (worldX < 100) {
+  if (donuts.length < 1) {
     var x = 800;
     var y = 300;
   } else {
