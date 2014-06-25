@@ -137,7 +137,7 @@ function createGame() {
 
   keys = game.input.keyboard.createCursorKeys();
 
-  music = game.add.audio('porksong');
+  music = game.add.audio('porksong', 1, true);
   music.play();
 
   createDonut();
