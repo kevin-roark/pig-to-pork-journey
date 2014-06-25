@@ -192,6 +192,8 @@ function preload() {
   game.load.image('dp4', 'assets/deadpig-4.png');
   game.load.image('dp5', 'assets/deadpig-5.png');
   game.load.image('dp6', 'assets/deadpig-6.png');
+
+  game.load.audio('porksong', ['assets/pork_journey_song.mp3', 'assets/pork_journey_song.ogg']);
 }
 
 function addControls() {
@@ -255,6 +257,9 @@ function createGame() {
   game.camera.follow(pig, Phaser.Camera.FOLLOW_PLATFORMER);
 
   keys = game.input.keyboard.createCursorKeys();
+
+  music = game.add.audio('porksong');
+  music.play();
 
   createDonut();
 }
