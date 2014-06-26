@@ -35,6 +35,8 @@ var donutGroup, pigGroup, textGroup;
 
 var lifeText;
 
+var loadingFlasher;
+
 var currentLife = STARTING_LIFE;
 var lifeLossRate = DEFAULT_LIFE_LOSS;
 
@@ -56,33 +58,57 @@ function preload() {
   $('body').css('background-color', 'white');
   $('canvas').css('opacity', '0.2');
 
-  game.load.image('background','assets/galaxy.jpg');
-  game.load.image('flypig', 'assets/flypig.png');
-  game.load.image('cannon', 'assets/cannon.png');
+  var black = true;
+  loadingFlasher = setInterval(function() {
+    if (black) {
+      $('.loading').css('color', 'white');
+    } else {
+      $('.loading').css('color', 'black');
+    }
+    black = !black;
+  }, 200);
 
-  game.load.image('donut', 'assets/chocolate_donut.png');
-  game.load.image('glow-donut', 'assets/chocolate_donut_glow.png');
-  game.load.image('dark-donut', 'assets/chocolate_donut_dark.png');
+  function updateNumLoaded(num) {
+    $('.num-loaded').html(' (' + num + ' / 21)');
+  }
 
-  game.load.image('blood', 'assets/blood.jpg');
+  function loadCache(name, file, isAudio) {
+    if (isAudio) {
+      game.load.audio(name, file);
+    } else {
+      game.load.image(name, file);
+    }
+  }
 
-  game.load.image('gold', 'assets/gold.jpg');
-  game.load.image('platinum', 'assets/platinum.jpg');
-  game.load.image('rainbow', 'assets/rainbow.jpg');
+  var loadCount = 0;
 
-  game.load.image('open-mouth', 'assets/open_mouth.png');
-  game.load.image('closed-mouth', 'assets/closed_mouth.png');
-  game.load.image('scary-mouth', 'assets/scary_mouth.png');
+  loadCache('background','assets/galaxy.jpg');
+  loadCache('flypig', 'assets/flypig.png');
+  loadCache('cannon', 'assets/cannon.png');
 
-  game.load.image('dp1', 'assets/deadpig-1.png');
-  game.load.image('dp2', 'assets/deadpig-2.png');
-  game.load.image('dp3', 'assets/deadpig-3.png');
-  game.load.image('dp4', 'assets/deadpig-4.png');
-  game.load.image('dp5', 'assets/deadpig-5.png');
-  game.load.image('dp6', 'assets/deadpig-6.png');
+  loadCache('donut', 'assets/chocolate_donut.png');
+  loadCache('glow-donut', 'assets/chocolate_donut_glow.png');
+  loadCache('dark-donut', 'assets/chocolate_donut_dark.png');
 
-  game.load.audio('porksong', ['assets/pork_journey_song.mp3', 'assets/pork_journey_song.ogg']);
-  game.load.audio('squeal', ['assets/squeal.mp3', 'assets/squeal.ogg']);
+  loadCache('blood', 'assets/blood.jpg');
+
+  loadCache('gold', 'assets/gold.jpg');
+  loadCache('platinum', 'assets/platinum.jpg');
+  loadCache('rainbow', 'assets/rainbow.jpg');
+
+  loadCache('open-mouth', 'assets/open_mouth.png');
+  loadCache('closed-mouth', 'assets/closed_mouth.png');
+  loadCache('scary-mouth', 'assets/scary_mouth.png');
+
+  loadCache('dp1', 'assets/deadpig-1.png');
+  loadCache('dp2', 'assets/deadpig-2.png');
+  loadCache('dp3', 'assets/deadpig-3.png');
+  loadCache('dp4', 'assets/deadpig-4.png');
+  loadCache('dp5', 'assets/deadpig-5.png');
+  loadCache('dp6', 'assets/deadpig-6.png');
+
+  loadCache('porksong', ['assets/pork_journey_song.mp3', 'assets/pork_journey_song.ogg'], true);
+  loadCache('squeal', ['assets/squeal.mp3', 'assets/squeal.ogg'], true);
 }
 
 function addControls() {
@@ -101,6 +127,7 @@ function addControls() {
 
 function createGame() {
   $('.loading').hide();
+  clearInterval(loadingFlasher)
 
   addControls();
 
