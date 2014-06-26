@@ -78,9 +78,11 @@ function preload() {
     } else {
       game.load.image(name, file);
     }
+    updateNumLoaded(++loadCount);
   }
 
   var loadCount = 0;
+  updateNumLoaded(loadCount);
 
   loadCache('background','assets/galaxy.jpg');
   loadCache('flypig', 'assets/flypig.png');
