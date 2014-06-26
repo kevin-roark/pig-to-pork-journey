@@ -57,6 +57,7 @@ function preload() {
 
   game.load.image('donut', 'assets/chocolate_donut.png');
   game.load.image('glow-donut', 'assets/chocolate_donut_glow.png');
+  game.load.image('dark-donut', 'assets/chocolate_donut_dark.png');
 
   game.load.image('blood', 'assets/blood.jpg');
 
@@ -382,6 +383,32 @@ function hitDonut(donut) {
 function passedDonut(donut) {
   donut.passed = true;
   squeal.play();
+  shrinkDonut();
+
+  var darkened = false;
+  var darkenInterval = setInterval(function() {
+    if (darkened) {
+      donut.loadTexture('donut');
+    } else {
+      donut.loadTexture('dark-donut');
+    }
+    darkened = !darkened;
+  }, 100);
+
+  function shrinkDonut() {
+    var scaleRate = 0.95;
+
+    if (!donut) return;
+
+    donut.scale.x *= scaleRate;
+    donut.scale.y *= scaleRate;
+
+    if (donut.scale.x > 0.05) {
+      setTimeout(shrinkDonut, 20);
+    } else {
+      clearInterval(darkenInterval);
+    }
+  }
 }
 
 function render() {};
