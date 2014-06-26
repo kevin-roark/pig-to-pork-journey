@@ -175,6 +175,7 @@ function preload() {
   $('.title').show();
   $('.loading').show();
   $('body').css('background-color', 'white');
+  $('canvas').css('opacity', '0.2');
 
   game.load.image('background','assets/galaxy.jpg');
   game.load.image('flypig', 'assets/flypig.png');
