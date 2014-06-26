@@ -187,10 +187,13 @@ function preload() {
       $('.loading').css('color', 'black');
     }
     black = !black;
+
+    updateNumLoaded();
   }, 200);
 
-  function updateNumLoaded(num) {
-    $('.num-loaded').html(' (' + num + ' / 21)');
+  function updateNumLoaded() {
+    var percent = game.load.percent;
+    $('.num-loaded').html(' (' + percent + '%)');
   }
 
   function loadCache(name, file, isAudio) {
