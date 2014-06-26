@@ -40,6 +40,16 @@ body {
   display: none;
 }
 
+.loading {
+  text-align: center;
+  width: 100%;
+  position: absolute;
+  top: 220px;
+  font-size: 92px;
+  font-family: Courier New, monospace;
+  display: none;
+}
+
 .button {
   text-align: center;
 

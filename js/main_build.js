@@ -34,7 +34,7 @@ function firstSentence() {
 }
 
 function firstFlash() {
-  $body.html('');
+  $('.intro-text').html('');
   var pig = $('<img class="happy-pig" src="assets/happy_pig.jpg" />');
   $body.append(pig);
 
@@ -55,7 +55,7 @@ function firstFlash() {
     if (showing) hidePig();
     else showPig();
     showing = !showing;
-    if (++shown == 16) {
+    if (++shown == 12) {
       clearInterval(interval);
       secondSentence();
     }
@@ -90,7 +90,7 @@ function secondSentence() {
 }
 
 function secondFlash() {
-  $body.html('');
+  $('.intro-text').html('');
   var pig = $('<img class="happy-pig" src="assets/sad_pig.jpg" />');
   $body.append(pig);
 
@@ -111,7 +111,7 @@ function secondFlash() {
     if (showing) hidePig();
     else showPig();
     showing = !showing;
-    if (++shown == 16) {
+    if (++shown == 12) {
       clearInterval(interval);
       finalCb();
     }
@@ -162,16 +162,20 @@ var lifeLossRate = DEFAULT_LIFE_LOSS;
 var Sprite = Phaser.Sprite;
 var Text = Phaser.Text;
 
-//intro(function() {
+intro(function() {
   game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, 'pork-journey',
                          {preload: preload,
                           create: createGame,
                           update: update,
                           render: render
                          });
-//});
+});
 
 function preload() {
+  $('.title').show();
+  $('.loading').show();
+  $('body').css('background-color', 'white');
+
   game.load.image('background','assets/galaxy.jpg');
   game.load.image('flypig', 'assets/flypig.png');
   game.load.image('cannon', 'assets/cannon.png');
@@ -203,10 +207,8 @@ function preload() {
 
 function addControls() {
   $('canvas').css('opacity', '0.2');
-  $('body').css('background-color', 'white');
 
   $('.play-button').show();
-  $('.title').show();
 
   $('.play-button').click(function() {
     $(this).off('click');
@@ -218,6 +220,8 @@ function addControls() {
 }
 
 function createGame() {
+  $('.loading').hide();
+
   addControls();
 
   game.scale.pageAlignHorizontally = true;

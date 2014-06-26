@@ -33,7 +33,7 @@ function firstSentence() {
 }
 
 function firstFlash() {
-  $body.html('');
+  $('.intro-text').html('');
   var pig = $('<img class="happy-pig" src="assets/happy_pig.jpg" />');
   $body.append(pig);
 
@@ -54,7 +54,7 @@ function firstFlash() {
     if (showing) hidePig();
     else showPig();
     showing = !showing;
-    if (++shown == 16) {
+    if (++shown == 12) {
       clearInterval(interval);
       secondSentence();
     }
@@ -89,7 +89,7 @@ function secondSentence() {
 }
 
 function secondFlash() {
-  $body.html('');
+  $('.intro-text').html('');
   var pig = $('<img class="happy-pig" src="assets/sad_pig.jpg" />');
   $body.append(pig);
 
@@ -110,7 +110,7 @@ function secondFlash() {
     if (showing) hidePig();
     else showPig();
     showing = !showing;
-    if (++shown == 16) {
+    if (++shown == 12) {
       clearInterval(interval);
       finalCb();
     }
