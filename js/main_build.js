@@ -182,7 +182,7 @@ function preload() {
   var black = true;
   loadingFlasher = setInterval(function() {
     if (black) {
-      $('.loading').css('color', 'white');
+      $('.loading').css('color', 'red');
     } else {
       $('.loading').css('color', 'black');
     }
