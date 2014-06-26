@@ -192,7 +192,7 @@ function preload() {
   }, 200);
 
   function updateNumLoaded() {
-    var percent = game.load.percent;
+    var percent = game.load.progress;
     $('.num-loaded').html(' (' + percent + '%)');
   }
 
