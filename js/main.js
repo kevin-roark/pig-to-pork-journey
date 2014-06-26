@@ -11,10 +11,10 @@ var VERT_SPEED_DIFF = 140;
 var MIN_SPEED = 215;
 
 var TOUCHING_DIST = 100;
-var PASSED_DIST = 400;
+var PASSED_DIST = 180;
 
 var STARTING_LIFE = 5000;
-var DEFAULT_LIFE_LOSS = 3;
+var DEFAULT_LIFE_LOSS = 3.55;
 var DONUT_LIFE_GAIN = 100;
 
 var DONUT_CREATION_RATE = 1500;
@@ -22,7 +22,10 @@ var DONUT_CREATION_RATE = 1500;
 var $body = $('body');
 var game, pig, cannon, mouth;
 var donuts = [];
+var numDonutsHit = 0;
 var bloodEmitter;
+
+var music, squeal;
 
 var keys;
 var controllable = false;
@@ -73,6 +76,7 @@ function preload() {
   game.load.image('dp6', 'assets/deadpig-6.png');
 
   game.load.audio('porksong', ['assets/pork_journey_song.mp3', 'assets/pork_journey_song.ogg']);
+  game.load.audio('squeal', ['assets/squeal.mp3', 'assets/squeal.ogg']);
 }
 
 function addControls() {
@@ -139,6 +143,8 @@ function createGame() {
 
   music = game.add.audio('porksong', 1, true);
   music.play();
+
+  squeal = game.add.audio('squeal');
 
   createDonut();
 }
@@ -256,6 +262,7 @@ function endGame() {
     pig.loadTexture('flypig');
 
     currentLife = STARTING_LIFE;
+    lifeText.setText(getLifeText());
   }
 
 }
@@ -284,7 +291,7 @@ function update() {
 
   rotateDonuts();
 
-  bloodEmitter.emitX = pig.world.x - 50;
+  bloodEmitter.emitX = pig.world.x - 60;
   bloodEmitter.emitY = pig.world.y;
 
   if (!controllable) return;
@@ -309,11 +316,15 @@ function hitDonut(donut) {
   lifeText.fontSize = 66;
   lifeText.font = 'Courier New';
   lifeText.fill = 'rgb(230, 230, 45)';
+  DEFAULT_LIFE_LOSS = 0;
+  numDonutsHit++;
   setTimeout(function() {
+    if (--numDonutsHit > 0) return;
     lifeText.fontSize = 56;
     lifeText.font = 'Courier New';
     lifeText.fill = 'rgb(255, 0, 0)';
-  }, 250);
+    DEFAULT_LIFE_LOSS = 3.3;
+  }, 375);
 
   var glowInterval;
   var glowing = false;
@@ -370,20 +381,28 @@ function hitDonut(donut) {
 
 function passedDonut(donut) {
   donut.passed = true;
+  squeal.play();
 }
+
+function render() {};
 
 function setPigMotion() {
   pig.body.velocity.x = MIN_SPEED;
   pig.body.velocity.y = 0;
 
+  var minBloodX = -190;
+
+
   if (keys.left.isDown) {
     pig.body.velocity.x -= HOR_SLOW_DOWN;
     lifeLossRate *= 1.25;
+    minBloodX += 200;
   }
 
   if (keys.right.isDown) {
     pig.body.velocity.x += HOR_SPEED_UP;
-    lifeLossRate *= 0.75;
+    lifeLossRate *= 0.83;
+    minBloodX -= 150;
   }
 
   if (keys.up.isDown) {
@@ -393,10 +412,8 @@ function setPigMotion() {
   if (keys.down.isDown) {
     pig.body.velocity.y += VERT_SPEED_DIFF;
   }
-}
 
-function render() {
-  // called every frame i guess after update
+  bloodEmitter.setXSpeed(minBloodX, 20);
 }
 
 function launchPig(callback) {
@@ -458,5 +475,5 @@ function getWorldX() {
 }
 
 function getLifeText() {
-  return 'fat: ' + Math.round(currentLife);
+  return 'blod: ' + Math.round(currentLife);
 }
